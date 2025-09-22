@@ -1,6 +1,5 @@
+// Conectamos la BBDD
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config(); // <-- Añade esto
 
 const connectionDB = async () => {
     try {
