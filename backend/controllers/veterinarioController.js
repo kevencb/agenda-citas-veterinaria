@@ -1,5 +1,5 @@
-import { request } from "express";
 import Veterinario from "../models/Veterinario.js"
+import generarJWT from "../helpers/generarJWT.js";
 
 const registrar = async (req, res) => {
 
@@ -11,7 +11,7 @@ const registrar = async (req, res) => {
         const error = new Error('Usuario ya registrado.')
         return res.status(400).json({ msg: error.message })
     }
-    /**** Fin: Pevenir registro duplicado ****/
+    /**** Fin: Prevenir registro duplicado ****/
 
     try {
         /**** Inicio: Guardar nuevo veterninario ****/
@@ -51,6 +51,33 @@ const confirmar = async (req, res) => {
     }
 }
 
-export {
-    registrar, perfil, confirmar
+const autenticar = async (req, res) => {
+    const { email, password } = req.body
+
+    /***** Inicio: Comprobar si el usuario existe ****/
+    const usuario = await Veterinario.findOne({ email: email })
+    if (!usuario) {
+        const error = new Error('Usuario no registrado.')
+        return res.status(401).json({ msg: error.message })
+    }
+    /***** Fin: Comprobar si el usuario existe ****/
+
+    /***** Inicio: Comprobar si la cuenta esta comprobada ****/
+    if (!usuario.confirmado) {
+        const error = new Error('Cuenta no confirmada.')
+        return res.status(403).json({ msg: error.message })
+    }
+    /***** Fin: Comprobar si la cuenta esta comprobada ****/
+
+    /***** Inicio: Validar el password ****/
+    if (await usuario.comprobarPassword(password)) {
+        res.json({ token: generarJWT(usuario.id) })
+    } else {
+        const error = new Error('Password incorrecto.')
+        return res.status(403).json({ msg: error.message })
+    }
+    /***** Fin: Validar el password ****/
+
 }
+
+export { registrar, perfil, confirmar, autenticar }
