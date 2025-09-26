@@ -25,7 +25,9 @@ const registrar = async (req, res) => {
 }
 
 const perfil = (req, res) => {
-    res.json({ msg: "Mostrando perfil" })
+    // Unavez autenticado el usuario obtenemos los datos que sacamos desde el authMiddleware
+    const { veterinario } = req
+    res.json({ perfil: veterinario })
 }
 
 const confirmar = async (req, res) => {
